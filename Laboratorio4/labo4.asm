@@ -1,41 +1,54 @@
-org 100h
+org     100h
 
-        section .text
+section .text
+
+XOR SI, SI                          
+XOR DI, DI
+XOR BX, BX
+XOR CX, CX
+XOR DX, DX
+XOR AX, AX
+
+MOV     BP, array     
+CALL    datos        
+
+int     20h
+
+section .data
+
+array db 24,14,16,26,2,17,23,31,7,29 ;
+largo equ $-array ;
+dividir equ 02 ;   
+
+datos:
+    MOV     BL, dividir
+
+for:
+    CMP     SI, largo
+    JE      end
+
+    MOV     AL, [BP+SI]
+    MOV     BH,AL
+    DIV     BL
+    INC     SI
+
+    CMP     AH, 0
+    JE      even
+    JNE     odd
         
-        mov BP,arr
-        call evenOdd
+even:
+    MOV     DI, CX
+    MOV     [300h+ DI], BH
+    INC     DI
+    MOV     CX, DI
+    jmp     for
 
-        int 20h
-        
-        section .data
-arr db 24,14,16,26,2,17,23,31,7,29,0xA
-
-evenOdd:
-    xor SI,SI
-
-while:
-    mov AL,[BP+SI]
-    mov dl, al
-    
-    cmp AL,0xA
-    je end
-
-    mov bl,01h
-    and AL,bl
-    
-    cmp AL,01h  
-    jnz evenodd
-    
-    mov [0320H+SI],dl
-    
-    inc SI
-    jmp while
-
-evenodd:
-    mov [0300H+SI],dl
-
-    inc SI
-    jmp while
+odd:
+    MOV     DI, DX
+    MOV     [320h+DI], BH
+    INC     DI
+    MOV     DX, DI
+    jmp     for
 
 end:
-ret 
+    ret
